@@ -18,7 +18,7 @@ int main(int argc, char * argv[]) {
 	freopen_s(&f1, "..//matr.in", "rb", stdin);
 	freopen_s(&f2, "..//matr.out", "wb", stdout);
 
-	// чтение данных 
+	// С‡С‚РµРЅРёРµ РґР°РЅРЅС‹С… 
 	fread(&n, sizeof(n), 1, stdin);
 	A = new double[n * n];
 	B = new double[n * n];
@@ -26,13 +26,14 @@ int main(int argc, char * argv[]) {
 	fread(A, sizeof(*A), n*n, stdin);
 	fread(B, sizeof(*B), n*n, stdin);
 
-	// запуск и замер последовательной версии
+	// Р·Р°РїСѓСЃРє Рё Р·Р°РјРµСЂ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕР№ РІРµСЂСЃРёРё
 	double time = omp_get_wtime();
 	C= ConsistentStrassenAlgorithm(A,B,n,1);
 	time = omp_get_wtime() - time;
 
-	// запись результатов
+	// Р·Р°РїРёСЃСЊ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
 	fwrite(&time, sizeof(time), 1, stdout);
+	fwrite(&n, sizeof(n), 1, stdout);
 	fwrite(C, sizeof(*C), n * n, stdout);
 
 	return 0;

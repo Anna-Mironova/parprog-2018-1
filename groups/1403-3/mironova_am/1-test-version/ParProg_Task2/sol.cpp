@@ -1,32 +1,7 @@
 #include <cmath>
 #include <cstdlib>
 
-// логарифм по основанию base
-int log(const int Size, const int base) {
-	return int(log(Size) / log(base));
-}
-
-// проверяем является ли размер матрицы степенью base
-bool IsSizePowerBase(const int Size, const int base) {
-	bool res;
-	if (int(pow(base, log(Size, base))) == Size)
-		res = true;
-	else
-		res = false;
-	return res;
-}
-
-// увеличиваем размер матрицы до ближайшей степени base
-int IncreaseSize(const int Size, const int base) {
-	int res;
-	if (!IsSizePowerBase(Size, base))
-		res = 1 << (log(Size, base) + 1);
-	else
-		res = 1 << (log(Size, base));
-	return res;
-}
-
-// сложение матриц
+// СЃР»РѕР¶РµРЅРёРµ РјР°С‚СЂРёС†
 double* Add(double* mtx1, double* mtx2,int n) {
 
 	double * result= new double[n*n];
@@ -38,7 +13,7 @@ double* Add(double* mtx1, double* mtx2,int n) {
 	return result;
 }
 
-// вычитание матриц
+// РІС‹С‡РёС‚Р°РЅРёРµ РјР°С‚СЂРёС†
 double* Sub(double* mtx1, double* mtx2, int n) {
 
 	double * result = new double[n*n];
@@ -50,7 +25,7 @@ double* Sub(double* mtx1, double* mtx2, int n) {
 	return result;
 }
 
-// Обычный метод умножения матриц
+// РћР±С‹С‡РЅС‹Р№ РјРµС‚РѕРґ СѓРјРЅРѕР¶РµРЅРёСЏ РјР°С‚СЂРёС†
 double* StandartAlgorithm(double* mtx1, double* mtx2, int n) {
 	double * result = new double[n*n];
 	for (int i = 0; i < n*n; i++) {
@@ -66,16 +41,25 @@ double* StandartAlgorithm(double* mtx1, double* mtx2, int n) {
 	return result;
 }
 
-// Алгоритм Штрассена умножения матриц
+// РђР»РіРѕСЂРёС‚Рј РЁС‚СЂР°СЃСЃРµРЅР° СѓРјРЅРѕР¶РµРЅРёСЏ РјР°С‚СЂРёС†
 double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_size) {
 	
 	double* result;
 	if (n <= min_size) {
 		result = StandartAlgorithm(mtx1, mtx2,n);
 	} else {
-		result = new double[IncreaseSize(n, 2)*IncreaseSize(n, 2)];
+		result = new double[n*n];
 
-		n /= 2; // Матрица разбивается на 4 блока с половинными размерами
+		double** mtx1_temp = new double*[n];
+		double** mtx2_temp = new double*[n];
+		double** result_temp = new double*[n];
+		for (int i = 0; i < n; i++) {
+			mtx1_temp[i] = mtx1 + i*n;
+			mtx2_temp[i] = mtx2 + i*n;
+			result_temp[i] = result + i*n;
+		}
+
+		n /= 2; // РњР°С‚СЂРёС†Р° СЂР°Р·Р±РёРІР°РµС‚СЃСЏ РЅР° 4 Р±Р»РѕРєР° СЃ РїРѕР»РѕРІРёРЅРЅС‹РјРё СЂР°Р·РјРµСЂР°РјРё
 
 		double* A11 = new double[n*n]; double*	A12 = new double[n*n];
 		double* A21 = new double[n*n]; double* A22 = new double[n*n];
@@ -91,32 +75,23 @@ double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_s
 		double* P6 = new double[n*n];
 		double* P7 = new double[n*n];
 
-		double** mtx1_temp = new double*[n];
-		double** mtx2_temp = new double*[n];
-		double** result_temp = new double*[n];
-		for (int i = 0; i < n; i++) {
-			mtx1_temp[i] = mtx1 + i*n;
-			mtx2_temp[i] = mtx1 + i*n;
-			result_temp[i] = mtx1 + i*n;
-		}
-
 		for (int i = 0; i < n; i++)
 		{
 			for (int j = 0; j < n; j++)
 			{
-				A11[i*n+j]= mtx1_temp[i][j];
-				A12[i*n + j] = mtx1_temp[i][j + 2];
-				A21[i*n + j] = mtx1_temp[i + 2][j];
-				A22[i*n + j] = mtx1_temp[i + 2][j + 2];
+				A11[i*n + j]= mtx1_temp[i][j];
+				A12[i*n + j] = mtx1_temp[i][j + n];
+				A21[i*n + j] = mtx1_temp[i + n][j];
+				A22[i*n + j] = mtx1_temp[i + n][j + n];
 
 				B11[i*n + j] = mtx2_temp[i][j];
-				B12[i*n + j] = mtx2_temp[i][j + 2];
-				B21[i*n + j] = mtx2_temp[i + 2][j];
-				B22[i*n + j] = mtx2_temp[i + 2][j + 2];
+				B12[i*n + j] = mtx2_temp[i][j + n];
+				B21[i*n + j] = mtx2_temp[i + n][j];
+				B22[i*n + j] = mtx2_temp[i + n][j + n];
 			}
 		}
 
-		//Производим рекурсивный процесс до тех пор,пока размер матриц не станет достаточно малым
+		//РџСЂРѕРёР·РІРѕРґРёРј СЂРµРєСѓСЂСЃРёРІРЅС‹Р№ РїСЂРѕС†РµСЃСЃ РґРѕ С‚РµС… РїРѕСЂ,РїРѕРєР° СЂР°Р·РјРµСЂ РјР°С‚СЂРёС† РЅРµ СЃС‚Р°РЅРµС‚ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РјР°Р»С‹Рј
 		P1 = ConsistentStrassenAlgorithm(Add(A11, A22, n), Add(B11, B22, n), n, min_size);
 		P2 = ConsistentStrassenAlgorithm(Add(A21, A22, n), B11, n, min_size);
 		P3 = ConsistentStrassenAlgorithm(A11, Sub(B12, B22, n), n, min_size);
@@ -125,7 +100,7 @@ double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_s
 		P6 = ConsistentStrassenAlgorithm(Sub(A21, A11, n), Add(B11, B12, n), n, min_size);
 		P7 = ConsistentStrassenAlgorithm(Sub(A12, A22, n), Add(B21, B22, n), n,min_size);
 
-		//Находим результирующие блоки 
+		//РќР°С…РѕРґРёРј СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёРµ Р±Р»РѕРєРё 
 		C11 = Sub(Add(Add(P1, P4, n), P7, n), P5, n); // P1 + P4 + P7 - P5
 		C12 = Add(P3, P5, n);		                  // P3 + P5;
 		C21 = Add(P2, P4, n);                         // P2 + P4;
@@ -135,9 +110,9 @@ double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_s
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				result_temp[i][j] = C11[i*n + j];
-				result_temp[i][j + 2] = C12[i*n + j];
-				result_temp[i + 2][j] = C21[i*n + j];
-				result_temp[i + 2][j + 2] = C22[i*n + j];
+				result_temp[i][j + n] = C12[i*n + j];
+				result_temp[i + n][j] = C21[i*n + j];
+				result_temp[i + n][j + n] = C22[i*n + j];
 			}
 		}
 
@@ -149,25 +124,4 @@ double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_s
 		delete[] mtx1_temp; delete[] mtx2_temp; delete[] result_temp;
 	}
 	return result;
-}
-
-bool Test(double* mtx1, double* mtx2, double* strassen_result, int n) {
-	double* res = StandartAlgorithm(mtx1, mtx2, n);
-	bool flag = true;
-
-	// Вычисляем ошибку, как квадрат нормы разности решений
-	double diff = 0.0;
-	for (int i = 0; i < n * n; i++)
-		for (int i = 0; i < n*n; i++)
-		{
-			diff += (res[i] - strassen_result[i]) * (res[i] - strassen_result[i]);
-		}
-	// Проверяем, что ошибка мала, тогда сообщаем, что решение корректно, иначе - некорректно.
-	if (diff < 1e-6) {
-		flag = true;
-	}
-	else {
-		flag = false;
-	}
-	return flag;
 }
