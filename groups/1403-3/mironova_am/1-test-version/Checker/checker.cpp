@@ -71,75 +71,63 @@ public:
 	}
 } checker_result;
 
-double* StandartAlgorithm(double* mtx1, double* mtx2, int n) {
-	double * result = new double[n*n];
-	for (int i = 0; i < n*n; i++) {
-		result[i] = 0;
-	}
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < n; j++) {
-			for (int k = 0; k < n; k++) {
-				result[i*n + j] += mtx1[i*n + k] * mtx2[k*n + j];
-			}
-		}
-	}
-	return result;
-}
-
-bool Test(double* mtx1, double* mtx2, double* strassen_result, int n) {
-	double* res = StandartAlgorithm(mtx1, mtx2, n);
+bool Test(double* standart_result, double* strassen_result, int n) {
 	bool flag = true;
 
 	// Вычисляем ошибку, как квадрат нормы разности решений
 	double diff = 0.0;
-	for (int i = 0; i < n * n; i++)
-		for (int i = 0; i < n*n; i++)
-		{
-			diff += (res[i] - strassen_result[i]) * (res[i] - strassen_result[i]);
-		}
-	// Проверяем, что ошибка мала, тогда сообщаем, что решение корректно, иначе - некорректно.
-	if (diff < 1e-6) {
-		flag = true;
+	for (int i = 0; i < n * n; i++) {
+		diff += (standart_result[i] - strassen_result[i]) * (standart_result[i] - strassen_result[i]);
 	}
-	else {
+	// Проверяем, что ошибка мала, тогда сообщаем, что решение корректно, иначе - некорректно.
+	if (diff < 1e-5) {
+		flag = true;
+	} else {
 		flag = false;
 	}
 	return flag;
 }
 
-int main() {
+int main(int argc, char * argv[]) {
 	FILE * f1;
 	FILE * f2;
 	double res_time;
-	int n;
-	double* res,*A,*B;
+	int n_ans;
+	int n_sol;
+	double *res_ans;
+	double *res_sol;
 
-	freopen_s(&f1, "..//matr.out", "rb", stdin);
+	string fileName = "matr";
+	if (argc == 2) {
+		fileName = argv[1];
+	}
+
+	freopen_s(&f1, ("..//Tests/" + fileName + ".sol").c_str(), "rb", stdin);
 	fread(&res_time, sizeof(res_time), 1, stdin);
-	fread(&n, sizeof(n), 1, stdin);
-	res = new double[n*n];
-	fread(res, sizeof(*res), n*n, stdin);
+	fread(&n_sol, sizeof(n_sol), 1, stdin);
+	res_sol = new double[n_sol*n_sol];
+	fread(res_sol, sizeof(*res_sol), n_sol*n_sol, stdin);
 	fclose(f1);
 
-	freopen_s(&f2, "..//matr.in", "rb", stdin);
-	fread(&n, sizeof(n), 1, stdin);
-	A = new double[n*n];
-	B = new double[n*n];
-	fread(A, sizeof(*A), n*n, stdin);
-	fread(B, sizeof(*B), n*n, stdin);
+	freopen_s(&f2, ("..//Tests/" + fileName + ".ans").c_str(), "rb", stdin);
+	fread(&n_ans, sizeof(n_ans), 1, stdin);
+	res_ans = new double[n_ans*n_ans];
+	fread(res_ans, sizeof(*res_ans), n_ans*n_ans, stdin);
+	fclose(f2);
 
-	
-	if (Test(A,B,res,n)) {
-		checker_result.write_message("AC. Numbers are equal.");
-		checker_result.write_verdict(verdict::AC);
-	}
-	else
-	{
-		checker_result.write_message("WA. Output is not correct.");
+	if (n_ans == n_sol) {
+		if (Test(res_ans, res_sol, n_sol)) {
+			checker_result.write_message("AC. Numbers are equal.");
+			checker_result.write_verdict(verdict::AC);
+		} else {
+			checker_result.write_message("WA. Output is not correct.");
+			checker_result.write_verdict(verdict::WA);
+		}
+	} else {
+		checker_result.write_message("WA. Matrix sizes are not equal.");
 		checker_result.write_verdict(verdict::WA);
 	}
 
 	checker_result.write_time(res_time * 1e7);
-	fclose(f2);
 	return 0;
 }
