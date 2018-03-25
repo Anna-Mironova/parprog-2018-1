@@ -5,31 +5,6 @@
 
 using namespace std;
 
-// логарифм по основанию base
-int log(const int Size, const int base) {
-	return int(log(Size) / log(base));
-}
-
-// проверяем является ли размер матрицы степенью base
-bool IsSizePowerBase(const int Size, const int base) {
-	bool res;
-	if (int(pow(base, log(Size, base))) == Size)
-		res = true;
-	else
-		res = false;
-	return res;
-}
-
-// увеличиваем размер матрицы до ближайшей степени base
-int IncreaseSize(const int Size, const int base) {
-	int res;
-	if (!IsSizePowerBase(Size, base))
-		res = 1 << (log(Size, base) + 1);
-	else
-		res = 1 << (log(Size, base));
-	return res;
-}
-
 int main(int argc, char * argv[]) {
 	FILE * f1;
 	default_random_engine generator(chrono::system_clock::now().time_since_epoch().count());
@@ -52,30 +27,15 @@ int main(int argc, char * argv[]) {
 	}
 
 	freopen_s(&f1, ("..//Tests/" + fileName + ".in").c_str(), "wb", stdout);
-	//преобразуем размерность  матрицы,чтобы она была степенью 2 
-	// в бинарных файлах размерность уже преобразованная и матрицы дополнены нулями
-	int n_new = IncreaseSize(n, 2);
-	fwrite(&n_new, sizeof(n_new), 1, stdout);
-	double * cur = new double[n_new];
-	for (int i = 0; i < n_new; i++)
-	{
-		cur[i] = 0;
-	}
+	fwrite(&n, sizeof(n), 1, stdout);
+	double * cur = new double[n];
 
 	//генерация 1-ой матрицы
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < n; j++)
 			cur[j] = distribution(generator);
-		fwrite(cur, sizeof(*cur), n_new, stdout);
-	}
-	for (int i = 0; i < n_new; i++)
-	{
-		cur[i] = 0;
-	}
-	for (int i = n; i < n_new; i++)
-	{
-		fwrite(cur, sizeof(*cur), n_new, stdout);
+		fwrite(cur, sizeof(*cur), n, stdout);
 	}
 
 	//генерация 2-ой матрицы
@@ -83,16 +43,9 @@ int main(int argc, char * argv[]) {
 	{
 		for (int j = 0; j < n; j++)
 			cur[j] = distribution(generator);
-		fwrite(cur, sizeof(*cur), n_new, stdout);
+		fwrite(cur, sizeof(*cur), n, stdout);
 	}
-	for (int i = 0; i < n_new; i++)
-	{
-		cur[i] = 0;
-	}
-	for (int i = n; i < n_new; i++)
-	{
-		fwrite(cur, sizeof(*cur), n_new, stdout);
-	}
+
 	fclose(f1);
 	return 0;
 }

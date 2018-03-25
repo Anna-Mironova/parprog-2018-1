@@ -6,12 +6,19 @@ using namespace std;
 
 double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2,int n, int min_size);
 double* StandartAlgorithm(double* mtx1, double* mtx2, int n);
+int IncreaseSize(const int Size, const int base);
+void ConvertForStrassenAlgorithm(double* mtx1, double* mtx2, int n, double* mtx1_new, double* mtx2_new);
+void ConvertAfterStrassenAlgorithm(double* res, double* res_new, int n);
 
 int main(int argc, char * argv[]) {
 	int n;
+	int n_temp;
 	double* A;
 	double* B;
 	double* C;
+	double* A_temp;
+	double* B_temp;
+	double* C_temp;
 	double* C_standart;
 
 	FILE* f1;
@@ -32,12 +39,21 @@ int main(int argc, char * argv[]) {
 	fread(B, sizeof(*B), n*n, stdin);
 	fclose(f1);
 
+	//преобразование данных 
+	n_temp = IncreaseSize(n, 2);
+	A_temp = new double[n_temp*n_temp];
+	B_temp = new double[n_temp*n_temp];
+	ConvertForStrassenAlgorithm(A, B, n, A_temp, B_temp);
+
 	// запуск и замер последовательной версии
 	double time = omp_get_wtime();
-	C= ConsistentStrassenAlgorithm(A,B,n,1);
+	C_temp= ConsistentStrassenAlgorithm(A_temp,B_temp,n_temp,1);
 	time = omp_get_wtime() - time;
 
 	C_standart = StandartAlgorithm(A, B, n);
+
+	//преобразование данных 
+	ConvertAfterStrassenAlgorithm(C_temp,C,n);
 
 	// запись результатов
 	freopen_s(&f2, ("..//Tests/" + fileName + ".sol").c_str(), "wb", stdout);

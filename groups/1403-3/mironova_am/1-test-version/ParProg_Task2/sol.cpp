@@ -1,6 +1,31 @@
 #include <cmath>
 #include <cstdlib>
 
+// логарифм по основанию base
+int log(const int Size, const int base) {
+	return int(log(Size) / log(base));
+}
+
+// проверяем является ли размер матрицы степенью base
+bool IsSizePowerBase(const int Size, const int base) {
+	bool res;
+	if (int(pow(base, log(Size, base))) == Size)
+		res = true;
+	else
+		res = false;
+	return res;
+}
+
+// увеличиваем размер матрицы до ближайшей степени base
+int IncreaseSize(const int Size, const int base) {
+	int res;
+	if (!IsSizePowerBase(Size, base))
+		res = 1 << (log(Size, base) + 1);
+	else
+		res = 1 << (log(Size, base));
+	return res;
+}
+
 // сложение матриц
 double* Add(double* mtx1, double* mtx2,int n) {
 
@@ -124,4 +149,56 @@ double* ConsistentStrassenAlgorithm(double* mtx1, double* mtx2, int n, int min_s
 		delete[] mtx1_temp; delete[] mtx2_temp; delete[] result_temp;
 	}
 	return result;
+}
+
+void ConvertForStrassenAlgorithm(double* mtx1, double* mtx2,int n, double* mtx1_new, double* mtx2_new )
+{
+	int n_new = IncreaseSize(n, 2);
+	if (n == n_new) {
+		for (int i = 0; i < n*n; i++)  {
+			mtx1_new[i] = mtx1[i];
+			mtx2_new[i] = mtx2[i];
+		}
+	} else {
+		double** mtx1_temp = new double*[n];
+		double** mtx2_temp = new double*[n];
+		for (int i = 0; i < n; i++) {
+			mtx1_temp[i] = mtx1 + i*n;
+			mtx2_temp[i] = mtx2 + i*n;
+		}
+		for (int i = 0; i < n_new*n_new; i++){
+			mtx1_new[i] = 0;
+			mtx2_new[i] = 0;
+		}
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				mtx1_new[i*n_new + j] = mtx1_temp[i][j];
+				mtx2_new[i*n_new + j] = mtx2_temp[i][j];
+			}
+		}
+		delete[] mtx1_temp;
+		delete[] mtx2_temp;
+	}
+}
+
+void ConvertAfterStrassenAlgorithm(double* res, double* res_new, int n)
+{
+	if (n == IncreaseSize(n, 2)) {
+		for (int i = 0; i < n*n; i++) {
+			res_new[i] = res[i];
+		}
+	} else {
+		int n_new = IncreaseSize(n, 2);
+		double** result_temp = new double*[n_new];
+		for (int i = 0; i <  n_new; i++) {
+			result_temp[i] = res + i* n_new;
+		}
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < n; j++)
+			{
+				res_new[i*n + j] = result_temp[i][j];
+			}
+		}
+	}
 }
